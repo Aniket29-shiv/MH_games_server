@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real Time Flower Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		$(function () 
+		{
+		  var socket = io.connect('http://localhost:8087');
+		  
+			
+		/*		   		
+		socket.on('connect', function(socket) {
+		alert("");
+				socket.on('declared', function(data){
+				alert("----1");
+				alert(data.msg);
+			});
+			});
+			
+			socket.on('declared', function(data){
+				alert("----");
+				alert(data.msg);
+			});
+			*/
+			socket.on('connect', function() {
+				//socket.emit('get_game_summary',username,grpid);
+			});
+		});
+	</script>
+</head>
+<h2><script> document.write("user : "+username);</script></h2>
+<h2><script> document.write("group : "+group);</script></h2>
+<h2><script> //document.write("cards "+card_group1.toString());</script></h2>
+
+<body>
+<div>
+	<table id="game_summary" border="1">
+		<th>Sr.No.</th>
+		<th>User Id</th>
+		<th>Cards</th>
+		<th>Win Points</th>
+		<th>Lost Points</th>
+		<th>Winner</th>
+	</table>
+	<script>
+$(function () 
+		{
+		$(window).load()
+		{
+		var i=0,k; var card_arr1 = [],card_arr2 = [],card_arr3 = [],card_arr4 = [],card_arr5 = [],card_arr6 = [],card_arr7 = [];
+			$('#game_summary').append('<tr><td>'+(i+1)+'</td><td>'+username+'</td><td><div id="cards1" style="float:left;margin-left:25px;margin-right:17px"></div><div id="cards2" style="float:left;margin-left:5px;margin-right:17px"></div><div id="cards3" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards4" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards5" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards6" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards7" style="float:left;margin-left:5px;margin-right:17px;"></div></td><td>'+100+'</td><td>'+0+'</td></tr>');
+			//alert(card_group1.length);
+			if(card_group1.length>0)
+			{
+				card_arr1 = card_group1.split(",");
+				$.each(card_arr1, function(n,m){
+					if(n=0)
+					$('#cards1').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards1').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />'); 
+				});
+			}
+			if(card_group2.length>0)
+			{
+				card_arr2 = card_group2.split(",");
+				$.each(card_arr2, function(n,m){
+					//$('#cards2').append('<img width="25px" height="25px" src="' + this + '" />'); 
+					if(n=0)
+					$('#cards2').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards2').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+				});
+			}
+			if(card_group3.length>0)
+			{
+				card_arr3 = card_group3.split(",");
+				$.each(card_arr3, function(n,m){
+						if(n=0)
+						$('#cards3').append('<img width="25px" height="25px" src="' + m + '" />'); 
+						else
+						$('#cards3').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+					});
+			}
+			if(card_group4.length>0)
+			{
+				card_arr4 = card_group4.split(",");
+				$.each(card_arr4, function(){
+					if(n=0)
+					$('#cards4').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards4').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+				});
+			}
+			if(card_group5.length>0)
+			{
+				card_arr5 = card_group5.split(",");
+				$.each(card_arr5, function(){
+					if(n=0)
+					$('#cards5').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards5').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+				});
+			}
+			if(card_group6.length>0)
+			{
+				card_arr6 = card_group6.split(",");
+				$.each(card_arr6, function(){
+					if(n=0)
+					$('#cards6').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards6').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+				});
+			}
+			if(card_group7.length>0)
+			{
+				card_arr7 = card_group7.split(",");
+				$.each(card_arr7, function(){
+					if(n=0)
+					$('#cards7').append('<img width="25px" height="25px" src="' + m + '" />'); 
+					else
+					$('#cards7').append('<img width="25px" height="25px" style="margin-left: -20px;" src="' + m + '" />');
+				});
+			}
+			
+			//alert(card_arr1.length+"----"+card_arr1.toString());
+			 //$.each(card_group1, function(n) {
+			  //$("<img width='10%'/>").attr("src", val).appendTo($("#game_summary"));
+				//					});
+				
+				
+				
+				
+				
+				
+				
+		}
+			
+		});
+</script>
+</div> 
+
+</body>
+</html>
+

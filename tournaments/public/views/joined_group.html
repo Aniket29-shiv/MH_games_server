@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real Time Flower Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="/socket.io/socket.io.js"></script>
+	<!--<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+	<script src="/jquery.js"></script>
+	<script src="/jquery_ui.js"></script>
+	<link rel="stylesheet" href="/jquery_ui_css.css">
+	<style>
+		.index {
+			background: none repeat scroll 0 0 pink;
+			border-radius: 20px;
+			color: #fff;
+			font-size: 20px;
+			font-weight: bold;
+			padding: 5px 15px;
+			position: absolute;
+		}
+		
+		.corners {
+			border-radius: 25px;
+			background: #73AD21;
+		}
+	</style>
+	<script>
+		$(function ()
+		{
+		  var socket = io.connect('http://localhost:8087');
+		  var btnclicked,random_group_roundno;
+		  var joined_group=false;
+		  var activity_timer_status=false;
+		  var user_assigned_cards = [];
+		  var activity_msg_count = 3;
+		  var player_turn = false;
+		  ////used for return card if no discard within timer ////
+		  var picked_card_value;
+		  var discard_click = false ;
+		  var next_turn = false ;
+		  var remove_obj;
+		  var is_open_close_picked = 0;
+		  var ttt = false;
+		  
+			socket.on('connect', function(){
+				socket.emit('user_opened_join_group',username,grpid);
+			});		 
+		   		
+				$("#player1turn").hide();
+				$("#player2turn").hide();
+				$("#group_cards").hide();
+				$("#cards_lbl").hide();
+				$("#sort_cards").hide();
+				$("#discard_card").hide();
+				$("#finish_game").hide();
+				$("#declare_div").hide();
+				$("#f").hide();
+				
+				socket.on('declared', function(data){
+					$("#msg").empty();
+					$("#msg").html("Player "+data.user+" has declared game , so group your cards and declare...!");
+					$("#declare_div").show();
+				});
+			
+			socket.on('user1_join_group_check', function(userjoined,btnclicked,groupid_listening){
+			if(username==userjoined)
+			{
+				joined_group=true;
+			} 
+				if(grpid==groupid_listening)
+				{
+					if($.trim($("#div_msg").html())=='')
+					 {
+						$('#div_msg').prepend(userjoined+' has joined...!<br/> '+' Waiting for other Player to join Game!');
+						if(btnclicked==1)
+						{
+							$("#join1").hide();
+							$("#user1name").text(userjoined);
+						}
+						else {
+						   $("#join2").hide();
+						   $("#user2name").text(userjoined);
+							}
+					}
+					else
+					 { $('#div_msg').empty();  }
+ 				}
+			});	
+		
+			$('#join1').click(function()
+			{
+				btnclicked = 1;
+				if(joined_group==false)
+				{
+					joined_group=true;
+					if($.trim($("#div_msg").html())=='')
+					 { 
+						$('#div_msg').prepend(username+' has joined...!<br/> '+' Waiting for other Player to join Game!');
+						$("#user1name").text(username);
+						socket.emit('user1_join_group', username,btnclicked,grpid,random_group_roundno,1); 
+					 }
+					 else
+					 {
+						$("#user1name").text(username);
+						socket.emit('user1_join_group', username,btnclicked,grpid,random_group_roundno,2);  
+						}
+					  $("#join1").hide();
+				 }
+				  else
+				  {
+					$('#join1').prop('disabled', true);
+				  }
+				  return false;
+			});
+			  
+			$('#join2').click(function()
+			{
+				btnclicked = 2;
+				if(joined_group==false)
+				{
+					joined_group=true;
+				
+					if($.trim($("#div_msg").html())=='')
+					 {
+						  $('#div_msg').prepend(username+' has joined...!<br/> '+' Waiting for other Player to join Game!');
+						  $("#user2name").text(username);
+						  socket.emit('user1_join_group', username,btnclicked,grpid,random_group_roundno,1);  
+					 }
+					else
+					 {
+						socket.emit('user1_join_group', username,btnclicked,grpid,random_group_roundno,2); 
+					   $("#user2name").text(username);  
+					}
+					   $("#join2").hide();
+					 }
+				 else
+				  {
+					$('#join2').prop('disabled', true);
+				  }
+				   return false;
+			});
+			
+			
+		socket.on('user1_join_group', function(username_recvd,user,groupid_listening,recvd_random_group_roundno,activity_timer)
+			{
+			if(grpid==groupid_listening){
+				if(activity_timer==-1)
+				 {
+					$('#div_msg').prepend(username_recvd+' has joined...!<br/> '+' Waiting for other Player to join Game!');
+						if(user==1)
+						{
+						$("#join1").hide();
+				      $("#user1name").text(username_recvd);
+						}
+ 					 else {
+					   $("#join2").hide();
+				       $("#user2name").text(username_recvd);
+					 }
+					  
+					}
+				else
+				 {
+				   activity_timer_status = true;
+						$('#div_msg').empty();
+						$('#div_msg').prepend(' <label id="Timer"></label>');
+						$("#Timer").text('Activity will start within '+activity_timer +' seconds..!');
+					  
+						if (activity_timer == 0) {
+								 $("#grp_round_no").html(recvd_random_group_roundno);
+								 $("#Timer").text("");
+								}
+						if (activity_timer == 10) {
+						 if(user==1)
+						{
+						$("#join1").hide();
+					  if(username==username_recvd)
+					   { 
+						$("#user1name").text($("#user2name").text());
+						$("#user2name").text(username_recvd);
+						}
+						else  $("#user1name").text(username_recvd);
+					  }
+ 					 else {
+					   $("#join2").hide();
+					  if(username!=username_recvd)
+					   {
+						$("#user2name").text($("#user1name").text());
+						$("#user1name").text(username_recvd);
+						}
+						
+					 }}
+				}
+				}
+			});
+			
+			var selected_card_count=0;
+			var open_card_src,closed_card_src;
+			/////show open card to other player
+			socket.on("open_card", function(data) 
+			{
+				$("#open_card").attr('src', data.path); 
+				open_card_src =$("#open_card").attr("src");
+				//is_open_close_picked = false;
+				is_open_close_picked = 0;
+				ttt = data.check;
+			});
+			
+			
+			var temp_closed_cards_arr = [];
+			var temp_closed_cards_arr1 = [];
+			var closed_card_src_temp;
+			socket.on("turn", function(data) 
+			{
+				var opp_player;							 
+				$('#div_msg').empty();
+			if(data.myturn) {
+				  $("#div_msg").prepend("<span class='label label-important'>Player <b>"+data.turn_of_user+" </b>turn.</span>");
+				} else {
+				if(($("#user1name").text())==data.turn_of_user)
+				{opp_player =  $("#user2name").text();}
+				else
+				{opp_player =  $("#user1name").text();}
+				  $("#div_msg").prepend("<span class='label label-info'>It's your opponent's player  <b>"+opp_player+"  </b> turn.</span>");
+				}
+					var temp_count = 3,game_count;
+					var card_click = [] ; var clicked_key; 
+					var prev_discard_key ; var nm;
+					var closed_cards_arr = [];
+					if(((data.closedcards).toString())!='')
+					{closed_cards_arr.push.apply(closed_cards_arr,data.closedcards);}
+					
+					
+					if(((data.closedcards_path).toString())!='')
+					{temp_closed_cards_arr.push.apply(temp_closed_cards_arr,data.closedcards_path);}
+					
+						  var card_count ;
+						  var countdown = setInterval(function(){
+						  temp_count--;
+						  if (temp_count == 0) {
+						 		  clearInterval(countdown);  
+								 $('#div_msg').hide();
+								 $("#images").empty();
+								////// default image for other players cards
+								$("#default_image").append("<img style='margin-left:280px' width='210px' height='60px' src='default1.bmp'>");
+								////// assign 13 cards to both players 
+									$.each(data.assigned_cards, function(k, v) 
+										{
+											$('#images_parent').append( $('#images') );
+											if(k==0)
+												$("#images").append("<img width='60px' height='60px' id='card"+k+"' src="+v.card_path+">");
+											else $("#images").append("<img width='60px' height='60px' id='card"+k+"' style='margin-left: -40px;' src="+v.card_path+">");
+											$("#sort_cards").show();
+											
+											$("#card"+k).click(function() 
+											{
+												if(($.inArray(k,card_click))>-1)
+												{ 
+													$("#card"+k).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != k;
+													});
+													selected_card_count--;
+													groupCards(k,v,selected_card_count,0); 
+												}
+												else 
+												{
+													clicked_key = k;
+													card_click.push(clicked_key);
+													$("#card"+k).css('border', "solid 1px blue"); 
+													selected_card_count++;
+													groupCards(clicked_key,v,selected_card_count,1); 
+												
+													if($.trim($("#images").html())!='')
+													{ 
+													 card_count = $("#images").children().length;
+													}
+												
+													if(card_count==14  && player_turn==true)// && selected_card_count ==1)
+													{
+														$("#discard_card").show();
+														$("#finish_game").show();
+													}
+													else
+													{
+														$("#discard_card").hide();
+														$("#finish_game").hide();
+													}
+												$("#discard_card").click(function()
+												{
+													$("#discard_card").hide();
+													$("#finish_game").hide();
+													if(clicked_key!=prev_discard_key)
+													{
+														var src = $("#card"+clicked_key).attr("src");
+														discard("#card",src,clicked_key,"#images",data.assigned_cards[clicked_key]);
+														prev_discard_key = clicked_key;
+													}
+												});
+												$("#finish_game").click(function()
+												{
+													var src = $("#card"+k).attr("src");
+													finish("#card",src,k,"#images");
+												});
+												}
+												return false;
+											});
+										});
+										
+									
+								////// open and closed and side joker images
+									 $('#buttons').prepend(' <img id="joker_card" width="65px" height="50px" style="margin-bottom: -3px;margin-left: 145px; transform: rotate(-90deg);" src='+data.sidejoker+' alt="Side JOker"><img id="closed_cards" width="70px" height="60px" style="margin-bottom: -6px;margin-left: -9px;" src="closedimg.bmp" alt="Closed cards"><img id="open_card" width="70px" height="60px" style="margin-bottom: -6px;margin-left: 45px;" alt="Open card" src='+data.opencard+'><img id="finish_card" width="70px" height="60px" style="margin-bottom: -6px;margin-left: 45px;background-color:white; visibility: hidden;" src="" alt="finish">');
+									 $("#cards_lbl").show();
+									 
+									 user_assigned_cards.push.apply(user_assigned_cards, data.assigned_cards); 
+									//// open card click
+									
+									 $("#open_card").click(function() 
+											{ 
+												if(data.open_close_pick_count==0)
+												{
+													open_card_src =$("#open_card").attr("src");
+													if(open_card_src=='closedimg.bmp')
+													{
+														alert("No Open Card/(s) available..!");
+													}
+													else {
+														socket.emit("check_open_closed_pick_count",{user:data.turn_of_user,group:grpid,card:'open',card_data:data.opencard1,path:open_card_src});
+													}
+												}
+												else alert("You can pick only 1 card at a time from open/close cards!");
+											});
+										//// closed card click
+										$("#closed_cards").click(function() 
+											{ 
+											if(data.open_close_pick_count==0)
+												{
+													//if(data.closedcards_path.length==0)
+													if(temp_closed_cards_arr.length==0)
+													{
+														alert("No Close Card/(s) available..!");
+													}
+													else
+													{
+														if(temp_closed_cards_arr1.length==0)
+														{closed_card_src =temp_closed_cards_arr[0];}
+														else
+														{
+														//closed_card_src =temp_closed_cards_arr1[0];
+														closed_card_src = closed_card_src_temp;
+														}
+														
+														socket.emit("check_open_closed_pick_count",{user:data.turn_of_user,group:grpid,card:'close',card_data:data.closedcards,path:closed_card_src});
+													}
+												}
+												else alert("You can pick only 1 card at a time from open/close cards!");
+											});
+											
+								////// check turn and start Actual game timer
+								//showTimer();
+								game_count = data.game_timer;
+									if(data.myturn) {
+									
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+										player_turn = true;
+										var countdown1 = setInterval(function(){
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										//game_count--;
+										
+										if(next_turn!=true)
+										{game_count--;}
+										else {game_count = 0;next_turn = false;}
+										
+										  if (game_count == 0) {
+										  ////if card taken from open/close and not discarded any card within timer
+										  //// then return taken card to open
+											check_if_not_discarded(picked_card_value,discard_click,is_open_close_picked,remove_obj);
+										
+												  clearInterval(countdown1);  
+												  socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,myturn: true});											  
+												}
+										}, 1000);
+									  }
+									  else 
+									  {
+										player_turn = true;
+										var countdown2 = setInterval(function(){
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										
+										if(next_turn!=true)
+										{game_count--;}
+										else {game_count = 0;next_turn=false;}
+										
+										  if (game_count == 0) {
+										check_if_not_discarded(picked_card_value,discard_click,is_open_close_picked,remove_obj);
+												  clearInterval(countdown2); 
+													socket.emit("opponent_turn",{opponent_user:($("#user1name").text()),group:grpid,myturn: true});											  
+												}
+										 }, 1000);
+									  }
+									}
+									else
+									{ 
+									player_turn = false;
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+										var countdown1 = setInterval(function(){
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										game_count--;
+										
+										/*if(next_turn!=false)
+										{game_count--;}
+										else {game_count = 0;next_turn = false;}
+										*/
+										  if (game_count == 0) {
+												  clearInterval(countdown1);
+												  socket.emit("opponent_turn",{opponent_user:($("#user1name").text()),group:grpid,myturn:true});
+												}
+										 }, 1000);
+									  }
+									  else 
+									  {
+										var countdown2 = setInterval(function(){
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										game_count--;
+										
+										/*if(next_turn!=false)
+										{game_count--;}
+										else {game_count = 0;next_turn = false;}
+										*/
+										  if (game_count == 0) {
+												  clearInterval(countdown2);  
+												  socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,myturn:true});
+												}
+										 }, 1000);
+									  }
+									}
+								}
+							}, 1000);
+			});
+			
+			
+			socket.on("open_close_click_count", function(data) 
+			{
+			if((data.pick_count)==0)
+				{
+					var discarded_open_arr = [];
+					var card_click = [] ; var clicked_key;
+					var clicked_card_count = 0;
+					var card_type = data.card;
+					var appended_key = (($("#images").children().length));
+					var  src , obj ; var appended_group_div;
+					var nexy_key;
+				if(data.user==username)
+				{
+				ttt = data.check ;
+					if(card_type=='open')
+					{
+						src=$("#open_card").attr("src");
+						open_card_src =$("#open_card").attr("src");
+						picked_card_value = src;
+						is_open_close_picked = 1;
+						
+						obj = data.card_data.reduce(function(acc, cur, i) {
+							acc[i] = cur;
+						return acc;
+						});
+						remove_obj = obj;
+						
+						if(((data.open_arr).toString())!='')
+						{discarded_open_arr.push.apply(discarded_open_arr,data.open_arr);}
+					}
+					else if(card_type=='close')
+					{
+						src=data.path;
+						open_card_src =$("#open_card").attr("src");
+						picked_card_value = src;
+						is_open_close_picked = 1;
+						obj = (data.card_data).reduce(function(acc, cur, i) {
+						if(i=0)
+							{acc[i] = cur;}
+						return acc;
+						});
+						remove_obj = obj;
+						
+						if(((data.open_arr).toString())!='')
+						{temp_closed_cards_arr1.push.apply(temp_closed_cards_arr1,data.open_arr);}
+						closed_card_src_temp =data.open_arr[0];
+						
+					}
+					//if(data.user==username)
+					//{
+						if(appended_key!=0)
+						{
+						var last_iid = $('#images').children().last().attr('id');
+						var next_id = 0; 
+						if(last_iid.toString().length==5)
+							next_id = last_iid.substr(4,1);
+						if(last_iid.toString().length==6)
+							next_id = last_iid.substr(4,2);
+							nexy_key = ( parseInt( next_id, 10 ) + 1 );
+							$("#images").append("<img id='card"+nexy_key+"'  width='60px' height='60px' style='margin-left: -40px;' src="+src+">");
+						}
+						else
+						{
+							var div_arr = [];
+							for(i=7; i>=1;)// i--)
+							{
+								if((($("#card_group"+i+"")).children().length)==0)
+								 i--;
+								 else
+								 {
+								 appended_group_div = i;
+								 nexy_key = (($("#card_group"+i+"").children().length));
+								 $("#card_group"+i+"").append("<img id='card"+nexy_key+"'  width='60px' height='60px' src="+src+" style='margin-left: -40px;'>" );
+								 break;
+								 }
+							}
+						}
+						if(user_assigned_cards.length == 13)
+						{user_assigned_cards.push(obj);}
+					}
+					////////////////////////////////////////
+					$("#card"+nexy_key).click(function() 
+					{
+					var selected_card_arr1 = [];var card_count;
+					if(($.inArray(nexy_key,card_click))>-1)
+								{
+									$("#card"+nexy_key).css('border', "");  
+									card_click = jQuery.grep(card_click, function(value) {
+									 return value != nexy_key;
+									});
+									clicked_card_count--;
+									groupCards((nexy_key), obj,clicked_card_count,0); 
+								}
+								else 
+								{
+									clicked_key = nexy_key;
+									card_click.push(clicked_key);
+									$("#card"+nexy_key).css('border', "solid 1px blue"); 
+									clicked_card_count++;
+									groupCards((clicked_key), obj,clicked_card_count,1); 
+								}
+								if($.trim($("#images").html())!='')
+								{ 
+								 card_count = $("#images").children().length;
+								}
+								else
+								{
+									card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+								}
+									
+										if(card_count==14 && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+										}
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											is_open_close_picked = 0;
+											var removeItem = obj;
+											user_assigned_cards = jQuery.grep(user_assigned_cards, function(value) {
+											  return value != removeItem;
+											});
+											var src=$("#card"+nexy_key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(nexy_key);
+											
+											 if((($("#images").children().length))!=0)
+											 {
+												$.each(selected_card_arr1, function(n, m) 
+												{
+												   var image = $("#images").children("#card"+m);
+													image.remove();
+												});
+											 }
+											 else
+											 {
+												$.each(selected_card_arr1, function(n, m) 
+												{
+												   var image = $("#card_group"+appended_group_div+"").children("#card"+m);
+													image.remove();
+												});
+											 }
+											
+											ttt  = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+											 
+											
+								// socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										
+					//groupCards((nexy_key), obj,clicked_card_count); 
+					return false;
+					});
+					
+					//if(((data.open_arr).toString())!='')
+					//{discarded_open_arr.push.apply(discarded_open_arr,data.open_arr);}
+					
+					if((discarded_open_arr.length)==0)
+					{
+						$("#open_card").attr('src', "closedimg.bmp");  
+					}
+					else
+					{
+						$("#open_card").attr('src', discarded_open_arr[0]);  
+					}
+					
+				}
+				else
+				{
+					alert("You have already picked card from either Close / Open Card ");
+				}
+			});
+	
+			/////show first card on deck to decide turn
+			socket.on("firstcard", function(data) 
+			{
+				$("#images").append("<div style='margin-bottom: -27px;margin-left: 252px;margin-right: -300px; float: left; z-index:1'><img width='55px' height='55px' src="+data.card+"></div>");
+			});
+
+			var selected_card_arr = [];
+			var selected_card_arr1 = [];
+			var selected_group_card_arr = [];
+			var click_count = 0; var margin_left = 25;
+			var vars = {};
+			var grp1 = [];var grp2 = [];var grp3 = [];var grp4 = [];
+			var grp5 = [];var grp6 = [];var grp7 = [];
+			var initial_group = false;
+			
+			function groupCards(key, value,selected_card_count,clicked) 
+			{
+			   index = key;
+			   selectedCard = value;
+			   initial_group = true;
+			   
+			   if(clicked==1)
+			   {
+			    selected_card_arr.push(selectedCard);
+				selected_card_arr1.push(index);
+				}
+			   if(clicked==0)
+			   {
+			  
+				selected_card_arr = jQuery.grep(selected_card_arr, function(value) {
+				return value != selectedCard;});
+				selected_card_arr1 = jQuery.grep(selected_card_arr1, function(value) {
+				return value != index;});
+				}
+			   
+			   var prev_div_name;
+			    if (selected_card_count>1) 
+				  {
+					 $("#group_cards").show();
+					// $("#sort_cards").hide();
+				  } 
+				  else
+				  {
+					 $("#group_cards").hide();
+					// $("#sort_cards").show();
+				  }
+			}
+
+			function group_of_group(key, value,selected_card_count,clicked,card_id,card_parent) 
+			{
+				
+			   index = key;
+			   selectedCard = value;
+			   initial_group = false;
+			
+			   if(clicked==1)
+			   {
+					selected_card_arr.push(selectedCard);
+					selected_card_arr1.push(index);
+					selected_group_card_arr.push({p:card_parent,c:card_id});
+					
+				}
+			   
+			   if(clicked==0)
+			   {
+					selected_card_arr = jQuery.grep(selected_card_arr, function(value) {
+					return value != selectedCard;});
+					selected_card_arr1 = jQuery.grep(selected_card_arr1, function(value) {
+					return value != index;});
+					
+					selected_group_card_arr = jQuery.grep(selected_card_arr1, function(value) {
+					return value != p;});
+					
+				}
+			   
+			   var prev_div_name;
+			    if (selected_card_count>1) 
+				  {
+					 $("#group_cards").show();
+					 //$("#sort_cards").hide();
+				  } 
+				  else
+				  {
+					 $("#group_cards").hide();
+					 //$("#sort_cards").show();
+				  }
+			}
+			
+				$("#group_cards").click(function()
+				{
+				 $("#group_cards").hide();
+				  click_count++; var clicked_card_count =0;
+				  var card_click = [] ; var clicked_key;
+				   var card_click_grp = [] ; var clicked_key_grp;
+				  var opp_player; var available_grp_id;
+
+				  if( initial_group == false)
+				  {
+							for(i=1; i<=7;)
+								{
+									if((($("#card_group"+i+"")).children().length)!=0)
+									 i++;
+									 else
+									 {
+									 available_grp_id = "card_group"+i;
+									 break;
+									 }////else
+								}////for
+									 grp1 = [];
+									$.each(selected_card_arr, function(n, m) 
+										{
+										grp1.push({v:m.v, k: n});});
+									 $.each(grp1, function(key, obj)
+									{
+									if(key==0)
+										$("#"+available_grp_id).append("<img id='"+available_grp_id+"_"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#"+available_grp_id).append("<img id='"+available_grp_id+"_"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									$("#"+available_grp_id).css('margin-right', ((grp1.length*6)+"px")); 
+									$("#"+available_grp_id+"_"+key).click(function() 
+									{
+									
+											if(($.inArray(key,card_click_grp))>-1)
+												{
+													$("#"+available_grp_id+"_"+key).css('border', ""); 
+													card_click_grp = jQuery.grep(card_click_grp, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#"+available_grp_id+"_"+key,"#"+available_grp_id); 
+												}
+												else 
+												{
+													clicked_key_grp = key;
+													card_click_grp.push(clicked_key_grp);
+													$("#"+available_grp_id+"_"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#"+available_grp_id+"_"+key,"#"+available_grp_id); 
+												}
+									card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+									
+										if(card_count==14 && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+											$("#group_cards").show();
+										}
+										else
+										{
+											$("#group_cards").hide();
+										}
+										$("#discard_card").click(function()
+										{
+										
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											var ddd = [];
+											src=$("#"+available_grp_id+"_"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											//selected_card_arr1.push(key);
+											ddd.push(key);
+											
+											$.each(ddd, function(n, m) 
+											{
+											   var image = $("#"+available_grp_id).children("#"+available_grp_id+"_"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+									
+								// socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+						
+								});
+								
+								$.each(selected_group_card_arr, function(n, m) 
+								{
+									var image = $(m.p).children(m.c);
+									image.remove();
+								});
+								 selected_card_arr = [];
+								 selected_card_arr1 = [];
+								 selected_group_card_arr = [];
+					}
+				  if(initial_group == true)
+				  {
+				    $.each(selected_card_arr, function(n, m) 
+						{
+							if(click_count==1)
+							{	grp1.push({v:m, k: n});}
+							if(click_count==2)
+							{ 	grp2.push({v:m, k: n});}
+							if(click_count==3)
+							{ 	grp3.push({v:m, k: n});}
+							if(click_count==4)
+							{ 	grp4.push({v:m, k: n});}
+							if(click_count==5)
+							{ 	grp5.push({v:m, k: n});}
+							if(click_count==6)
+							{ 	grp6.push({v:m, k: n});}
+							if(click_count==7)
+							{ 	grp7.push({v:m, k: n});}
+						});
+							//if($.trim($("#card_group1").html())==''){
+							if($.trim($("#card_group1").html())==''){
+								$.each(grp1, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group1").append("<img id='grpA"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group1").append("<img id='grpA"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									$("#images").css('margin-left', "90px"); 
+									//$("#card_group1").css('margin-right', "8px"); 
+									$("#card_group1").css('margin-right', ((grp1.length*6)+"px")); 
+									$("#grpA"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpA"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpA"+key,'#card_group1'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpA"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpA"+key,'#card_group1'); 
+												}
+									card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+									
+										if(card_count==14 && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+											$("#group_cards").show();
+										}
+										else
+										{
+											$("#group_cards").hide();
+										}
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpA"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group1").children("#grpA"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+									
+								// socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+						
+								});
+							}
+							if($.trim($("#card_group2").html())==''){
+							if((grp2.length)>0)
+							{
+								$.each(grp2, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group2").append("<img id='grpB"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group2").append("<img id='grpB"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+									//$("#card_group2").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpB"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpB"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpB"+key,'#card_group2'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpB"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpB"+key,'#card_group2'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpB"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group2").children("#grpB"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								// socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+								});
+							}}
+							if($.trim($("#card_group3").html())==''){
+							if((grp3.length)>0)
+							{
+								$.each(grp3, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group3").append("<img id='grpC"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group3").append("<img id='grpC"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+									//$("#card_group3").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpC"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpC"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpC"+key,'#card_group3'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpC"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpC"+key,'#card_group3'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpC"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group3").children("#grpC"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								// socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+								});
+							}}
+							if($.trim($("#card_group4").html())==''){
+							if((grp4.length)>0)
+							{
+								$.each(grp4, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group4").append("<img id='grpD"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group4").append("<img id='grpD"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+								//	$("#card_group4").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpD"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpD"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpD"+key,'#card_group4'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpD"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpD"+key,'#card_group4'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpD"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group4").children("#grpD"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								//socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+								});
+							}}
+							if($.trim($("#card_group5").html())==''){
+							if((grp5.length)>0)
+							{
+								$.each(grp5, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group5").append("<img id='grpE"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group5").append("<img id='grpE"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+									//$("#card_group5").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpE"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpE"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpE"+key,'#card_group5'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpE"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpE"+key,'#card_group5'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpE"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group5").children("#grpE"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								//socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+								});
+							}}
+							if($.trim($("#card_group6").html())==''){
+							if((grp6.length)>0)
+							{
+								$.each(grp6, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group6").append("<img id='grpF"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group6").append("<img id='grpF"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+									//$("#card_group6").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpF"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpF"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpF"+key,'#card_group6'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpF"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpF"+key,'#card_group6'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpF"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group6").children("#grpF"+m);
+												image.remove();
+											});
+											ttt = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								//socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+								});
+							}}
+							if($.trim($("#card_group7").html())==''){
+							if((grp7.length)>0)
+							{
+								$.each(grp7, function(key, obj)
+								{
+									if(key==0)
+										$("#card_group7").append("<img id='grpG"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+									else $("#card_group7").append("<img id='grpG"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+									
+									//$("#card_group7").css({'margin-left':"5px","margin-right":"6px"}); 
+									$("#grpG"+key).click(function() 
+									{
+										if(($.inArray(key,card_click))>-1)
+												{
+													$("#grpG"+key).css('border', ""); 
+													card_click = jQuery.grep(card_click, function(value) {
+													  return value != key;
+													});
+													clicked_card_count--;
+													group_of_group(key,obj,clicked_card_count,0,"#grpG"+key,'#card_group7'); 
+												}
+												else 
+												{
+													clicked_key = key;
+													card_click.push(clicked_key);
+													$("#grpG"+key).css('border', "solid 1px blue"); 
+													clicked_card_count++;
+													group_of_group(key,obj,clicked_card_count,1,"#grpG"+key,'#card_group7'); 
+												}
+										card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+										
+										if(card_count==14  && player_turn==true && clicked_card_count==1)
+										{
+											$("#discard_card").show();
+											$("#finish_game").show();
+											$("#group_cards").hide();
+										}
+										else
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											//$("#group_cards").show();
+										}
+										if(clicked_card_count>1)
+										{
+										$("#group_cards").show();
+										}
+										else
+										{
+										$("#group_cards").hide();
+										}
+										
+										$("#discard_card").click(function()
+										{
+											$("#discard_card").hide();
+											$("#finish_game").hide();
+											discard_click  = true ;
+											next_turn = true;
+											
+											src=$("#grpG"+key).attr("src");
+											$("#open_card").attr('src', src);  
+											selected_card_arr1.push(key);
+											$.each(selected_card_arr1, function(n, m) 
+											{
+											   var image = $("#card_group7").children("#grpG"+m);
+												image.remove();
+											});
+											ttt  = false;
+											socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+											 if(($("#user1name").text())==username)
+											  {opp_player =  $("#user2name").text();}
+											  else
+											 {opp_player =  $("#user1name").text();}
+								//socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+										});
+										return false;
+									});
+									
+								});
+							}}
+						
+						$.each(selected_card_arr1, function(n, m) 
+						{
+							var image = $("#images").children("#card"+m);
+							image.remove();
+						});
+						 selected_card_arr = [];
+						 selected_card_arr1 = [];
+						 }
+					
+				 });
+				 
+				 function discard(clicked_card_id,clicked_card_src,key,parent,cardvalue)
+				 {
+				 var c = [];
+				 c.push(cardvalue);
+					selected_card_arr = jQuery.grep(selected_card_arr, function(value) {
+					return value != cardvalue;});
+					selected_card_arr1 = jQuery.grep(selected_card_arr1, function(value) {
+					return value != key;});
+					is_open_close_picked = 0;
+					
+					var obj = c.reduce(function(acc, cur, i) {
+						if(i=0)
+							{acc[i] = cur;}
+						return acc;
+						});
+					var removeItem = obj;
+					user_assigned_cards = jQuery.grep(user_assigned_cards, function(value) {
+					return value != removeItem;
+					});
+					var selected_card_arr11 = []; 
+				 	$("#discard_card").hide();
+					$("#finish_game").hide();
+					
+					discard_click  = true ;
+					next_turn = true;
+					$("#open_card").attr('src', clicked_card_src);  
+					selected_card_arr11.push(key);
+					$.each(selected_card_arr11, function(n, m) 
+					{
+					 var image = $(parent).children(clicked_card_id+m);
+					 image.remove();
+					});
+					ttt = false;
+					 socket.emit("show_open_card",{user: username,group:grpid,open_card_src:clicked_card_src,check:ttt});
+					 var opp_player;
+					 if(($("#user1name").text())==username)
+					  {opp_player =  $("#user2name").text();}
+					  else
+					 {opp_player =  $("#user1name").text();}
+					//socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+				}
+				 
+				 ////return picked card to open if no discard within timer 
+				 //function check_if_not_discarded(p_key,p_value,is_discard)
+				 function check_if_not_discarded(p_value,is_discard,is_open_close_picked,obj)
+				 {
+				 if(ttt == true)
+					{
+						is_open_close_picked = 0;
+						//show back to open
+						if(is_discard==false)
+						{
+							$("#open_card").attr('src', p_value);  
+						var div_id = $('#images_parent').find('img[src="'+p_value+'"]').closest('div').attr('id');
+						var img_id = $('#images_parent').find('img[src="'+p_value+'"]').attr('id');
+						var image = $("#"+div_id).children("#"+img_id);
+						image.remove();
+						ttt = false ;
+						var removeItem = obj;
+						user_assigned_cards = jQuery.grep(user_assigned_cards, function(value) {
+						return value != removeItem;
+						});
+						
+						socket.emit("show_open_card",{user: username,group:grpid,open_card_src:p_value,check:ttt});
+						}
+					 }
+					 
+				}
+				 
+				 function finish(clicked_card_id,clicked_card_src,key,parent)
+				 {
+					
+				 	var selected_card_arr1 = []; 
+					$("#discard_card").hide();
+					$("#finish_game").hide();
+					$("#finish_card").css('visibility', "visible"); 
+					$("#finish_card").attr('src', clicked_card_src);  
+					$("#f").show();
+					selected_card_arr1.push(key);
+					$.each(selected_card_arr1, function(n, m) 
+					{
+					var image = $(parent).children(clicked_card_id+m);
+					image.remove();
+					});
+					socket.emit("show_finish_card",{user: username,group:grpid,finish_card_src:clicked_card_src});
+					$("#player1turn").hide();
+					$("#player2turn").hide();
+					if(($("#user1name").text())==username)
+					  {opp_player =  $("#user2name").text();}
+					  else
+					 {opp_player =  $("#user1name").text();}
+					//socket.emit("turn_end",{opponent_user:opp_player,group:grpid});
+					socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,turn:'finish'});
+					$("#msg").empty();
+					$("#msg").html("Group your cards and Declare...!");
+					$("#declare_div").show();
+				}
+				
+				socket.on("turn_end", function(data) 
+				{
+					var game_count = data.timer;	
+					$("#player1turn").hide();
+					$("#player2turn").hide();
+				});
+				
+				$("#declare").click(function()
+				{
+				$("#declare_div").hide();
+				var grp1_count ,grp2_count ,grp3_count ,grp4_count,grp5_count,grp6_count ,grp7_count ;
+				var grp1_cards=[] ,grp2_cards=[] ,grp3_cards=[] ,grp4_cards=[],grp5_cards=[],grp6_cards=[] ,grp7_cards=[] ;
+				var opp_player;
+				///1st group cards
+					if($.trim($("#card_group1").html())!='')
+					{ 
+						grp1_count = $("#card_group1").children().length;
+					}
+					if(grp1_count>0)
+					{
+						$('#card_group1 > img').map(function() {
+							grp1_cards.push($(this).attr('src'));
+						});
+					}
+					///2nd group cards
+					if($.trim($("#card_group2").html())!='')
+					{ 
+						grp2_count = $("#card_group2").children().length;
+					}
+					if(grp2_count>0)
+					{
+						$('#card_group2 > img').map(function() {
+							grp2_cards.push($(this).attr('src'));
+						});
+					}
+					///3rd group cards
+					if($.trim($("#card_group3").html())!='')
+					{ 
+						grp3_count = $("#card_group3").children().length;
+					}
+					if(grp3_count>0)
+					{
+						$('#card_group3 > img').map(function() {
+							grp3_cards.push($(this).attr('src'));
+						});
+					}
+					///4th group cards
+					if($.trim($("#card_group4").html())!='')
+					{ 
+						grp4_count = $("#card_group4").children().length;
+					}
+					if(grp4_count>0)
+					{
+						$('#card_group4 > img').map(function() {
+							grp4_cards.push($(this).attr('src'));
+						});
+					}
+					///5th group cards
+					if($.trim($("#card_group5").html())!='')
+					{ 
+						grp5_count = $("#card_group5").children().length;
+					}
+					if(grp5_count>0)
+					{
+						$('#card_group5 > img').map(function() {
+							grp5_cards.push($(this).attr('src'));
+						});
+					}
+					///6th group cards
+					if($.trim($("#card_group6").html())!='')
+					{ 
+						grp6_count = $("#card_group6").children().length;
+					}
+					if(grp6_count>0)
+					{
+						$('#card_group6 > img').map(function() {
+							grp6_cards.push($(this).attr('src'));
+						});
+					}
+					///7th group cards
+					if($.trim($("#card_group7").html())!='')
+					{ 
+						grp7_count = $("#card_group7").children().length;
+					}
+					if(grp7_count>0)
+					{
+						$('#card_group7 > img').map(function() {
+							grp7_cards.push($(this).attr('src'));
+						});
+					}
+					 if(($("#user1name").text())==username)
+						{opp_player =  $("#user2name").text();}
+					else {opp_player =  $("#user1name").text();}
+
+					socket.emit("declare_game",{declared_user:username,opponent_user:opp_player,group:grpid,grp1:grp1_cards,grp2:grp2_cards,grp3:grp3_cards,grp4:grp4_cards,grp5:grp5_cards,grp6:grp6_cards,grp7:grp7_cards});
+						});
+				
+				socket.on("declared_data", function(data) 
+				{
+					$("#dialog").dialog({
+							modal: true,
+							autoOpen: false,
+							title: "Game Summary",
+							width: 650,
+							height: 250,
+							draggable : false
+						});
+						var i=0; var name; var win_ponits , lost_points = 0;
+						for(var k=0; k<2; k++)
+						{
+							i = i+1;
+							if(i==1)
+							{
+								name = username;
+								win_ponits = 100;
+								lost_points = 0;
+							}
+							else
+							{ 
+								name = data.opp_user; 
+								win_ponits = 0;
+								lost_points = -100;
+							}
+							if(data.declared==1)
+							{
+								$('#game_summary').append('<tr><td>'+(i)+'</td><td>'+name+'</td><td id="player'+(i)+'_cards"></td><td>'+win_ponits+'</td><td>'+lost_points+'</td></tr>');
+								if(i==1)
+								{
+								  $('#player'+(i)+'_cards').append('<div id="cards1" style="float:left;margin-left:25px;margin-right:17px"></div><div id="cards2" style="float:left;margin-left:5px;margin-right:17px"></div><div id="cards3" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards4" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards5" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards6" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="cards7" style="float:left;margin-left:5px;margin-right:17px;"></div>');
+								  if(data.grp1_cards.length>0)
+									{
+										$.each(data.grp1_cards, function(n,m){
+											if(n=0)
+											$('#cards1').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards1').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />'); 
+										});
+									}
+									if(data.grp2_cards.length>0)
+									{
+										$.each(data.grp2_cards, function(n,m){
+											if(n=0)
+											$('#cards2').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards2').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp3_cards.length>0)
+									{
+										$.each(data.grp3_cards, function(n,m){
+												if(n=0)
+												$('#cards3').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#cards3').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+									}
+									if(data.grp4_cards.length>0)
+									{
+										$.each(data.grp4_cards, function(n,m){
+											if(n=0)
+											$('#cards4').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards4').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp5_cards.length>0)
+									{
+										$.each(data.grp5_cards, function(n,m){
+											if(n=0)
+											$('#cards5').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards5').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp6_cards.length>0)
+									{
+										$.each(data.grp6_cards, function(n,m){
+											if(n=0)
+											$('#cards6').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards6').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp7_cards.length>0)
+									{
+										$.each(data.grp7_cards, function(n,m){
+											if(n=0)
+											$('#cards7').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#cards7').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									
+								}
+								else
+								{
+								$('#player'+(i)+'_cards').append('<img width="35px" height="35px" style="margin-left: 85px;" src="wait2.gif" />');
+								}
+									
+							}
+							else if(data.declared==2)
+							{
+								$('#game_summary').append('<tr><td>'+(i)+'</td><td>'+name+'</td><td><div id="pl'+(i)+'cards1" style="float:left;margin-left:25px;margin-right:17px"></div><div id="pl'+(i)+'cards2" style="float:left;margin-left:5px;margin-right:17px"></div><div id="pl'+(i)+'cards3" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards4" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards5" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards6" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards7" style="float:left;margin-left:5px;margin-right:17px;"></div></td><td>'+win_ponits+'</td><td>'+lost_points+'</td></tr>');
+								
+							}
+						}
+						
+						$('#dialog').dialog('open');
+				});
+				
+				////after 2nd player declares game 
+				socket.on("declared_final", function(data) 
+				{
+				//alert("current pl - "+username+"opp pl - "+data.opp_user+"declared pl - "+data.prev_pl);
+				var card_arr1 = [],card_arr2 = [],card_arr3 = [],card_arr4 = [],card_arr5 = [],card_arr6 = [],card_arr7 = [];
+				$('#game_summary').find('td').remove();
+
+					$("#dialog").dialog({
+							modal: true,
+							autoOpen: false,
+							title: "Game Summary",
+							width: 650,
+							height: 300,
+							draggable : false
+							
+						});
+						var joker_card_src = $("#joker_card").attr("src");	
+						$("#side_joker").append('Joker: '+'<img width="45px" height="45px" src="'+joker_card_src+'"/>');
+						
+						var i=0; var name; var win_ponits , lost_points = 0;
+						for(var k=0; k<2; k++)
+						{
+							i = i+1;
+							if(i==1)
+							{
+								name = username;
+								win_ponits = 100;
+								lost_points = 0;
+							}
+							else
+							{ 
+								name = data.opp_user; 
+								win_ponits = 0;
+								lost_points = -100;
+							}
+							if(data.declared==2)
+							{
+								$('#game_summary').append('<tr><td>'+(i)+'</td><td>'+name+'</td><td><div id="pl'+(i)+'cards1" style="float:left;margin-left:25px;margin-right:17px"></div><div id="pl'+(i)+'cards2" style="float:left;margin-left:5px;margin-right:17px"></div><div id="pl'+(i)+'cards3" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards4" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards5" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards6" style="float:left;margin-left:5px;margin-right:17px;"></div><div id="pl'+(i)+'cards7" style="float:left;margin-left:5px;margin-right:17px;"></div></td><td>'+win_ponits+'</td><td>'+lost_points+'</td><td id="win'+(i)+'"></td></tr>');
+								//alert("--"+i+"nm - "+name+"pev -"+data.prev_pl);
+								
+									if(i==1 && name==data.prev_pl)
+									{
+										$('#win'+(i)+'').append('<img width="35px" height="35px" src="cup2.jpg"/>');
+									}
+									if(i==2 && name==data.prev_pl)
+									{
+										$('#win'+(i)+'').append('<img width="35px" height="35px" src="cup2.jpg"/>');
+									}
+								if(i==1)
+								{
+									 if(data.grp1_cards.length>0)
+										{
+											$.each(data.grp1_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards1').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards1').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />'); 
+											});
+										}
+										if(data.grp2_cards.length>0)
+										{
+											$.each(data.grp2_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards2').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards2').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+										}
+										if(data.grp3_cards.length>0)
+										{
+											$.each(data.grp3_cards, function(n,m){
+													if(n=0)
+													$('#pl'+(i)+'cards3').append('<img width="35px" height="35px" src="' + m + '" />'); 
+													else
+													$('#pl'+(i)+'cards3').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+												});
+										}
+										if(data.grp4_cards.length>0)
+										{
+											$.each(data.grp4_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards4').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards4').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+										}
+										if(data.grp5_cards.length>0)
+										{
+											$.each(data.grp5_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards5').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards5').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+										}
+										if(data.grp6_cards.length>0)
+										{
+											$.each(data.grp6_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards6').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards6').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+										}
+										if(data.grp7_cards.length>0)
+										{
+											$.each(data.grp7_cards, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards7').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards7').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+										}
+									}
+									else
+									{
+										if(data.grp1.length>0)
+										{
+											$.each(data.grp1, function(n,m){
+											if(n=0)
+											{ 
+											$('#pl'+(i)+'cards1').append('<img width="35px" height="35px"     src="' + m + '" />'); }
+											else
+											{ 
+											$('#pl'+(i)+'cards1').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />'); }
+										});
+									}
+									if(data.grp2.length>0)
+									{
+										$.each(data.grp2, function(n,m){
+											if(n=0)
+											$('#pl'+(i)+'cards2').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#pl'+(i)+'cards2').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp3.length>0)
+									{
+										$.each(data.grp3, function(n,m){
+												if(n=0)
+												$('#pl'+(i)+'cards3').append('<img width="35px" height="35px" src="' + m + '" />'); 
+												else
+												$('#pl'+(i)+'cards3').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+											});
+									}
+									if(data.grp4.length>0)
+									{
+										$.each(data.grp4, function(n,m){
+											if(n=0)
+											$('#pl'+(i)+'cards4').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#pl'+(i)+'cards4').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp5.length>0)
+									{
+										$.each(data.grp5, function(n,m){
+											if(n=0)
+											$('#pl'+(i)+'cards5').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#pl'+(i)+'cards5').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp6.length>0)
+									{
+										$.each(data.grp6, function(n,m){
+											if(n=0)
+											$('#pl'+(i)+'cards6').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#pl'+(i)+'cards6').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									if(data.grp7.length>0)
+									{
+										$.each(data.grp7, function(n,m){
+											if(n=0)
+											$('#pl'+(i)+'cards7').append('<img width="35px" height="35px" src="' + m + '" />'); 
+											else
+											$('#pl'+(i)+'cards7').append('<img width="35px" height="35px" style="margin-left: -20px;" src="' + m + '" />');
+										});
+									}
+									}//else 
+							}
+						}
+						
+						$('#dialog').dialog('open');
+				});
+				
+				
+			$("#sort_cards").click(function()
+			{
+				$("#sort_cards").hide();
+			    var temp = []; var src ;
+				var temp_count = 0; var prev_div_name; var card_count=0;
+				var clicked_card_count=0;
+				var card_click = [] ; var clicked_key;
+				var opp_player;
+				
+				/*$.each(user_assigned_cards, function(key, value) {
+					temp.push({v:value, k: key});
+				});
+				temp = temp.sort(function(a,b) {
+					return (a.v.suit < b.v.suit ? -1 : 1)
+				});*/
+				
+				/*$.each(user_assigned_cards, function(key, value) {
+					temp.push({value});
+				});*/
+				if(user_assigned_cards.length == 13 || user_assigned_cards.length == 14)
+				{
+					temp.push.apply(temp,user_assigned_cards);
+				}
+				if(temp.length >0)	{
+				temp = temp.sort(function(a,b) {
+					return (a.suit < b.suit ? -1 : 1)
+				});
+				
+				$("#images").empty();
+				
+				$.each(temp, function(key, obj)
+				{ 
+				var div_name = obj.suit;
+					if(div_name=='C')
+						grp1.push({v:obj,k:key});
+					if(div_name=='S')
+						grp2.push({v:obj, k: key});
+					if(div_name=='H')
+						grp3.push({v:obj, k: key});
+					if(div_name=='D' || div_name=='Red_Joker' || div_name=='Black_Joker')
+						grp4.push({v:obj, k: key});
+				});
+			//	alert(""+JSON.stringify(grp1));
+				$.each(grp1, function(key, obj)
+				{
+				//alert("---"+obj.v.card_path);
+					if(key==0)
+						$("#card_group1").append("<img width='60px' id='C"+key+"' height='60px' src="+obj.v.card_path+">");
+					else $("#card_group1").append("<img width='60px' id='C"+key+"' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+					
+					$("#card_group1").css('margin-right', "10px"); 
+					
+					$("#C"+key).click(function() 
+						{
+							if(($.inArray(key,card_click))>-1)
+								{
+									$("#C"+key).css('border', ""); 
+									card_click = jQuery.grep(card_click, function(value) {
+									 return value != key;
+									});
+									clicked_card_count--;
+									//groupCards(key,obj,clicked_card_count,0); 
+									group_of_group(key,obj,clicked_card_count,0,"#C"+key,'#card_group1'); 
+								}
+								else 
+								{
+									clicked_key = key;
+									card_click.push(clicked_key);
+									$("#C"+key).css('border', "solid 1px blue"); 
+									clicked_card_count++;
+									//groupCards(clicked_key,obj,clicked_card_count,1); 
+									group_of_group(key,obj,clicked_card_count,1,"#C"+key,'#card_group1'); 
+								}
+							card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+							
+							if(card_count==14  && player_turn==true && clicked_card_count==1)
+							{
+								$("#discard_card").show();
+								$("#finish_game").show();
+								$("#group_cards").hide();
+							}
+							else
+							{
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								//$("#group_cards").show();
+							}
+							if(clicked_card_count>1)
+							{
+							$("#group_cards").show();
+							}
+							else
+							{
+							$("#group_cards").hide();
+							}
+							
+							$("#discard_card").unbind().on('click',function()
+							{
+								
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								discard_click  = true ;
+								next_turn = true;
+											
+								src=$("#C"+key).attr("src");
+								$("#open_card").attr('src', src);  
+								selected_card_arr1.push(key);
+								$.each(selected_card_arr1, function(n, m) 
+								{
+								   var image = $("#card_group1").children("#C"+m);
+									image.remove();
+								});
+								ttt = false;
+							    socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+								 if(($("#user1name").text())==username)
+								  {opp_player =  $("#user2name").text();}
+								  else
+								 {opp_player =  $("#user1name").text();}
+								 //socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+							});
+							return false;
+						});
+				});
+				$.each(grp2, function(key, obj)
+				{
+					if(key==0)
+						$("#card_group2").append("<img id='S"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+					else $("#card_group2").append("<img id='S"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+					
+					$("#card_group2").css('margin-left', "10px"); 
+					//$("#card_group2").css('margin-right', "7px"); 
+					$("#S"+key).click(function() 
+						{
+							if(($.inArray(key,card_click))>-1)
+								{
+									$("#S"+key).css('border', ""); 
+									card_click = jQuery.grep(card_click, function(value) {
+									 return value != key;
+									});
+									clicked_card_count--;
+									group_of_group(key,obj,clicked_card_count,0,"#S"+key,'#card_group2'); 
+								}
+								else 
+								{
+									clicked_key = key;
+									card_click.push(clicked_key);
+									$("#S"+key).css('border', "solid 1px blue"); 
+									clicked_card_count++;
+									group_of_group(key,obj,clicked_card_count,1,"#S"+key,'#card_group2'); 
+								}
+							//card_count = ($("#card_group1").children().length)+($("#card_group2").children().length)+
+							//($("#card_group3").children().length)+($("#card_group4").children().length);
+							card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+
+							if(card_count==14  && player_turn==true && clicked_card_count==1)
+							{
+								$("#discard_card").show();
+								$("#finish_game").show();
+								$("#group_cards").hide();
+							}
+							else 
+							{
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								//$("#group_cards").show();
+							}
+							if(clicked_card_count>1)
+							{
+							$("#group_cards").show();
+							}
+							else
+							{
+							$("#group_cards").hide();
+							}
+							
+							//$("#discard_card").click(function()
+							$("#discard_card").unbind().on('click',function()
+							{
+								
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								discard_click  = true ;
+								next_turn = true;
+								
+								src=$("#S"+key).attr("src");
+								$("#open_card").attr('src', src);  
+								selected_card_arr1.push(key);
+								$.each(selected_card_arr1, function(n, m) 
+								{
+								   var image = $("#card_group2").children("#S"+m);
+									image.remove();
+								});
+								ttt = false;
+								socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+								 if(($("#user1name").text())==username)
+								  {opp_player =  $("#user2name").text();}
+								  else
+								 {opp_player =  $("#user1name").text();}
+								 //socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+							
+							});
+							return false;
+						});
+				})
+				$.each(grp3, function(key, obj)
+				{
+					if(key==0)
+						$("#card_group3").append("<img id='H"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+					else $("#card_group3").append("<img id='H"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+					
+					$("#card_group3").css('margin-left', "10px"); 
+					$("#H"+key).click(function() 
+						{
+							card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+							
+							if(($.inArray(key,card_click))>-1)
+								{
+									$("#H"+key).css('border', ""); 
+									card_click = jQuery.grep(card_click, function(value) {
+									 return value != key;
+									});
+									clicked_card_count--;
+									group_of_group(key,obj,clicked_card_count,0,"#H"+key,'#card_group3'); 
+								}
+								else 
+								{
+									clicked_key = key;
+									card_click.push(clicked_key);
+									$("#H"+key).css('border', "solid 1px blue"); 
+									clicked_card_count++;
+									group_of_group(key,obj,clicked_card_count,1,"#H"+key,'#card_group3'); 
+								}
+							if(card_count==14  && player_turn==true && clicked_card_count==1)
+							{
+								$("#discard_card").show();
+								$("#finish_game").show();
+								$("#group_cards").hide();
+							}
+							else 
+							{
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								//$("#group_cards").show();
+							}
+							if(clicked_card_count>1)
+							{
+							$("#group_cards").show();
+							}
+							else
+							{
+							$("#group_cards").hide();
+							}
+							//$("#discard_card").click(function()
+							$("#discard_card").unbind().on('click',function()
+							{
+							var hhh = "#H"+key;
+							
+							//discard("#card",src,clicked_key,"#card_group3",data.assigned_cards[clicked_key]);
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								discard_click  = true ;
+								next_turn = true;
+								
+								src=$("#H"+key).attr("src");
+								$("#open_card").attr('src', src);  
+								selected_card_arr1.push(key);
+								$.each(selected_card_arr1, function(n, m) 
+								{
+								   var image = $("#card_group3").children("#H"+m);
+									image.remove();
+								});
+								ttt = false;
+								socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+								 if(($("#user1name").text())==username)
+								  {opp_player =  $("#user2name").text();}
+								  else
+								 {opp_player =  $("#user1name").text();}
+								 //socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+								 
+							});
+							return false;
+						});
+				});
+				$.each(grp4, function(key, obj)
+				{
+				
+					if(key==0)
+						$("#card_group4").append("<img id='D"+key+"' width='60px' height='60px' src="+obj.v.card_path+">");
+					else $("#card_group4").append("<img id='D"+key+"' width='60px' height='60px' style='margin-left: -40px;' src="+obj.v.card_path+">");
+					
+					$("#card_group4").css('margin-left', "10px"); 
+					$("#D"+key).click(function() 
+						{
+						
+						card_count= ($("#card_group1").children().length)+($("#card_group2").children().length)+($("#card_group3").children().length)+($("#card_group4").children().length)+($("#card_group5").children().length)+($("#card_group6").children().length)+($("#card_group7").children().length);
+						
+							if(($.inArray(key,card_click))>-1)
+								{
+									$("#D"+key).css('border', ""); 
+									card_click = jQuery.grep(card_click, function(value) {
+									 return value != key;
+									});
+									clicked_card_count--;
+									group_of_group(key,obj,clicked_card_count,0,"#D"+key,'#card_group4'); 
+								}
+								else 
+								{
+									clicked_key = key;
+									card_click.push(clicked_key);
+									$("#D"+key).css('border', "solid 1px blue"); 
+									clicked_card_count++;
+									group_of_group(key,obj,clicked_card_count,1,"#D"+key,'#card_group4'); 
+								}
+							if(card_count==14  && player_turn==true && clicked_card_count==1)
+							{
+								$("#discard_card").show();
+								$("#finish_game").show();
+								$("#group_cards").hide();
+							}
+							else 
+							{
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								//$("#group_cards").show();
+							}
+							if(clicked_card_count>1)
+							{
+							$("#group_cards").show();
+							}
+							else
+							{
+							$("#group_cards").hide();
+							}
+							//$("#discard_card").click(function()
+							$("#discard_card").unbind().on('click',function()
+							{ 
+								
+								$("#discard_card").hide();
+								$("#finish_game").hide();
+								discard_click  = true ;
+								next_turn = true;
+								
+								src=$("#D"+key).attr("src");
+								$("#open_card").attr('src', src); 
+								selected_card_arr1.push(key);
+								$.each(selected_card_arr1, function(n, m) 
+								{
+								   var image = $("#card_group4").children("#D"+m);
+									image.remove();
+								});
+								ttt = false;
+								socket.emit("show_open_card",{user: username,group:grpid,open_card_src:src,check:ttt});
+								
+								 if(($("#user1name").text())==username)
+								  {opp_player =  $("#user2name").text();}
+								  else
+								 {opp_player =  $("#user1name").text();}
+								
+								 //socket.emit("opponent_turn",{opponent_user:opp_player,group:grpid,myturn:true});
+								 
+							});
+							return false;
+						});
+				});
+				}
+			});
+			
+			
+			socket.on("finish_card", function(data) 
+			{
+				$("#finish_card").css('visibility', "visible");
+				$("#finish_card").attr('src', data.path); 
+				$("#player1turn").hide();
+				$("#player2turn").hide();
+				$("#f").show();
+			});
+			
+			
+			/////show turn timer to other player on first ends 
+			socket.on("timer_ends_opponent_turn", function(data) 
+			{
+				var game_count = data.game_timer;	
+				//data.myturn = false;
+					//alert(game_count);
+					if(game_count==0)
+					{
+						$("#player1turn").hide();
+						$("#player1turn").text(game_count);
+						$("#player2turn").hide();
+						$("#player2turn").text(game_count);
+					}else
+						{			
+						if(data.myturn) {
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+										player_turn = true;
+									    $("#player2turn").hide();
+										var countdown1 = setInterval(function(){
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										//game_count--;
+										
+										if(next_turn!=true)
+										{game_count--;}
+										else {game_count = 0;next_turn=false;}
+										
+										  if (game_count == 0) {
+										  if(is_open_close_picked == 1){
+									check_if_not_discarded(picked_card_value,discard_click,is_open_close_picked,remove_obj);
+									}
+												  clearInterval(countdown1);  
+												  socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,myturn:true});
+												  $("#player1turn").hide();						
+												  }
+										 }, 1000);
+									  }
+									  else 
+									  {
+										player_turn = true;
+										$("#player1turn").hide();
+										var countdown2 = setInterval(function(){
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										//game_count--;
+										if(next_turn!=true)
+										{game_count--;}
+										else {game_count = 0;next_turn=false;}
+										
+										  if (game_count == 0) {
+										  if(is_open_close_picked == 1){
+									check_if_not_discarded(picked_card_value,discard_click,is_open_close_picked,remove_obj);
+									}
+												  clearInterval(countdown2); 
+													socket.emit("opponent_turn",{opponent_user:($("#user1name").text()),group:grpid,myturn:true});	$("#player2turn").hide();					}
+										}, 1000);
+									  }
+									}
+									else
+									{ 
+									player_turn = false;
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+									    $("#player2turn").hide();
+										var countdown1 = setInterval(function(){
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										game_count--;
+										
+										/*if(next_turn!=false)
+										{game_count--;}
+										else {game_count = 0;next_turn = false;}
+										*/
+										  if (game_count == 0) {
+												  clearInterval(countdown1);
+												 $("#player1turn").hide();
+												 }
+										}, 1000);
+									  }
+									  else 
+									  {
+									   $("#player1turn").hide();
+										var countdown2 = setInterval(function(){
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										game_count--;
+										
+										/*if(next_turn!=false)
+										{game_count--;}
+										else {game_count = 0;next_turn = false;}
+										*/
+										  if (game_count == 0) {
+												  clearInterval(countdown2);  
+												 $("#player2turn").hide();
+												 }
+										}, 1000);
+									  }
+									}
+							}
+									
+			});
+			
+			/////leaving group ////
+			$("#leave_group").click(function()
+			{
+			  if(!activity_timer_status)
+			  {
+				if(!joined_group)
+				{
+					socket.emit("player_left",{left_user:username,group:grpid,joined:false,btnno:btnclicked});
+					window.close();
+				}
+				else
+				{
+					socket.emit("player_left",{left_user:username,group:grpid,joined:true,btnno:btnclicked});
+					window.close();
+				}
+			  }
+			  else
+				{	
+					$('#leave_group').prop('disabled', true);
+				}
+			});
+			
+			socket.on("player_left", function(data) 
+			{
+				$(function(){
+						  var count = 3; 
+						   $("#div_msg").empty();
+						   $('#div_msg').prepend(data.left_user+' has left the Game...!');
+						  var countdown = setInterval(function(){
+						  if (count == 0) {
+								  clearInterval(countdown);  
+								 $("#div_msg").empty();
+								}
+							count--;
+						  }, 1000);
+						});
+						
+						if(data.btn==1)
+						{
+							$("#join1").show();
+							$("#user1name").text('');
+						}
+ 					 else {
+							$("#join2").show();
+							$("#user2name").text('');
+					 }
+			});
+			
+			function showTimer()
+			{
+				socket.on("timer", function(data) 
+				{
+				var game_count = data.game_timer;
+					if(data.myturn) {
+									
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										  if (game_count == 0) {
+												  socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,myturn: true});		}
+										}
+									  else 
+									  {
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										  if (game_count == 0) {
+													socket.emit("opponent_turn",{opponent_user:($("#user1name").text()),group:grpid,myturn: true});		}
+										}
+									}
+									else
+									{ 
+									  if(data.turn_of_user == ($("#user1name").text()))
+									  {
+										$("#player2turn").text(game_count);
+										$("#player2turn").show();
+										  if (game_count == 0) {
+												  socket.emit("opponent_turn",{opponent_user:($("#user1name").text()),group:grpid,myturn:true});
+												}
+										}
+									  else 
+									  {
+										$("#player1turn").text(game_count);
+										$("#player1turn").show();
+										  if (game_count == 0) {
+												  socket.emit("opponent_turn",{opponent_user:($("#user2name").text()),group:grpid,myturn:true});
+												}
+										}
+									}
+				});
+			}
+			
+			  
+		});
+	</script>
+</head>
+<h2>Group Id: <script> document.write(grpid);</script></h2>
+<h2 style='margin-left: 600px;margin-top:-50px;'>Group Round No:<span id="grp_round_no"></span></h2>
+<h2>Group Name: <script> document.write(group_name);</script></h2>
+<button id="leave_group" type="submit" style="background: #ef5635 none repeat scroll 0 0;color: white;height: 40px;margin-left: 600px;margin-top: -72px;width: 120px;">Leave Group</button>
+<body>
+	<!--<form action="" id="join_group">-->
+		<div style='background-color:#ef5635;height:100%'>
+			<button id="join1" type="submit" style="width:120px;height:40px;margin-left:570px;margin-top:40px">JOIN</button>
+			<span class="index" id="player1turn" style="right: 255px;top: 156px;"></span>
+			<span id="user1name" style="width:120px;height:40px;margin-left:365px;margin-top:60px"></span><br/><br/>
+			<div style="background-color:white;height: 55%;margin-left: 258px;width: 60%;;margin-top:10px" id="div_msg"> 
+			</div><br/><br/>
+			<div id="default_image">
+			</div><br/>
+			<div id="buttons">
+			</div>
+			<button id="finish_game" class="corners"  style="width:90px;height:25px;margin-left: 426px;
+				margin-top: -22px;">Finish</button>
+			<div style="margin-left: 200px; margin-top: 15px;" id="cards_lbl"> <span>Closed  image(s)</span>
+			<span style="margin-left: 37px;">Open image(s)</span>
+			<span style="margin-left: 37px;" id="f">Finish</span></div>
+			<br/>
+			<button id="group_cards" class="corners"  style="width:90px;height:25px;">Group</button><br/>
+			<button id="discard_card" class="corners"  style="width:90px;height:25px;">Discard</button><br/>
+			<div style='background-color:pink;' id="declare_div">
+				<span  id="msg" ></span>
+			<button id="declare" class="corners"  style="width:90px;height:25px;">Declare</button>
+			</div><br/>
+			<div id="images_parent" width="100%">
+				<div id="card_group1" style='float:left;'>
+
+				</div>
+				<div id="card_group2" style='float:left;margin-right:5px;'>
+				</div>
+				<div id="card_group3" style='float:left;margin-right:5px;margin-left:5px;'>
+				</div>
+				<div id="card_group4" style='float:left;margin-right:5px;margin-left:5px;'>
+				</div>
+				<div id="card_group5" style='float:left;margin-right:5px;margin-left:5px;'>
+				</div>
+				<div id="card_group6" style='float:left;margin-right:5px;margin-left:5px;'>
+				</div>
+				<div id="card_group7" style='float:left;margin-right:5px;margin-left:5px;'>
+				</div>
+				<div id="images">
+				</div>
+			</div>
+			<button id="sort_cards" class="corners"  style="width:90px;height:25px;">Sort</button><br/>
+			<button id="join2" type="submit" style="width:120px;height:40px;margin-left:570px;margin-top:0px">JOIN</button>
+			<br/><span class="index" id="player2turn" style="right: 260px;bottom:90px;"></span>
+			<span id="user2name" style="width:120px;height:40px;margin-left:365px;margin-top:60px"></span>
+		</div>
+		 <div id="dialog" style="display: none" >  
+            <table id="game_summary" border="1" width="100%">
+				<th width="1%">Sr.No.</th>
+				<th width="10%">User Id</th>
+				<th width="80%">Cards</th>
+				<th width="5%">Win Points</th>
+				<th width="5%">Lost Points</th>
+				<th width="5%">Winner</th>
+			</table> 
+			<div id="side_joker" style='background-color:lightgreen;margin-top:40px'>
+			</div>
+		</div>  
+    
+	<!--</form>-->
+</body>
+</html>
+

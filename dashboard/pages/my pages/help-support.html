@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Rummy Store Admin Panel</title>
+	<!-- Tell the browser to be responsive to screen width -->
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<!-- Bootstrap 3.3.7 -->
+	<link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="../../bower_components/font-awesome/css/font-awesome.min.css">
+	<!-- Ionicons -->
+	<link rel="stylesheet" href="../../bower_components/Ionicons/css/ionicons.min.css">
+	<!-- Theme style -->
+	<link rel="stylesheet" href="../../dist/css/AdminLTE.min.css">
+	
+	<link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">
+	<link rel="stylesheet" href="../../css/style.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header">
+			<div id="header"></div>
+		</header>
+		<!-- Left side column. contains the logo and sidebar -->
+		<aside class="main-sidebar">
+			<section class="sidebar">
+				<div class="sidebar-menu" data-widget="tree" id="sidebar-menu"></div>
+			</section>
+		</aside>
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content">
+				<div class="box-header text-center with-border">
+					<h3 class="box-title">Help and Support</h3>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-md-offset-3 mt25">
+						<div class="box">
+							<div class="box-body">
+								<h4>Send message to user</h4>
+								<div style="margin-top:30px">
+									<label style="width:30%">Search User :-</label>
+									<input type="text" placeholder="John Doe" />
+									<br>
+									<label style="width:30%">Message :-</label>
+									<textarea style="margin-top:20px;width:53%;height:120px" placeholder="Please enter your message here...!"></textarea>
+									<br>
+									<label style="width:30%">Status :-</label>
+									<select style="padding:5px 10px;width:53%;margin-top:15px">
+										<option>-- Select --</option>
+										<option>Pending</option>
+										<option>Closed</option>
+										<option>Open</option>
+									</select>
+									<div class="text-center" style="margin:20px 0px">
+										<button class="btn btn-success">Send</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-xs-12">
+						<div class="box">
+							<!-- /.box-header -->
+							<div class="box-body help-support">
+								<div style="padding:12px">
+									<label>Search :</label>
+									<input type="text" placeholder="Type your name...">
+									<label class="ml15">Filter :</label>
+									<select>
+										<option>-- Select --</option>
+										<option>Pending</option>
+										<option>Closed</option>
+										<option>Open</option>
+									</select>
+								</div>
+								<div class="table-responsive box-body">
+									<table class="table table-bordered">
+										<thead>
+											<tr>
+												<th class="text-center">Sr No.</th>
+												<th class="text-center">User Name</th>
+												<th class="text-center">Subject</th>
+												<th class="text-center">Message</th>
+												<th class="text-center">Status</th>
+												<th class="text-center">Edit</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>1</td>
+												<td>John Doe</td>
+												<td>Technical Support</td>
+												<td>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</td>
+												<td>Send</td>
+												<td>
+													<button class="btn btn-primary btn-sm">Edit</button>
+												</td>
+											</tr>
+											<tr>
+												<td>2</td>
+												<td>Ricky Warn</td>
+												<td>Suggest</td>
+												<td>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</td>
+												<td>Pending</td>
+												<td>
+													<button class="btn btn-primary btn-sm">Edit</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<!-- /.box-body -->
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer">
+			<div id="footer"></div>
+		</footer>
+		<!-- Control Sidebar -->
+		<aside class="control-sidebar control-sidebar-dark" id="dashboard-settings"></aside>
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+	<!-- jQuery 3 -->
+	<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+	<!-- Bootstrap 3.3.7 -->
+	<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!-- SlimScroll -->
+	<script src="../../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+	<!-- FastClick -->
+	<script src="../../bower_components/fastclick/lib/fastclick.js"></script>
+	<!-- AdminLTE App -->
+	<script src="../../dist/js/adminlte.min.js"></script>
+	<!-- AdminLTE for demo purposes -->
+	<script src="../../dist/js/demo.js"></script>
+	<script>
+		$(function(){
+				$("#sidebar-menu").load("sidebar-menu.html"); 
+				$("#header").load("header.html"); 
+				$("#footer").load("footer.html"); 
+				$("#dashboard-settings").load("dashboard-settings.html"); 
+			});
+	</script>
+</body>
+
+</html>

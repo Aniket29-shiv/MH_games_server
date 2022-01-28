@@ -1,0 +1,29 @@
+include game_header.html
+script(src="/jquery_min.js")
+style table, th, td {
+      border: 2px solid black; }
+h2(align='right' style='margin-right:10px') Welcome #{loggeduser} 
+button(id="btn" onclick='log_out()' style='margin-left: 890px;width:90px;height:40px') Log Out
+script(type='text/javascript')  var log_out =function() { window.location.href='/'}
+h2(align='center') Groups Available
+div(width='100%')
+form(id="join" method="get")
+   input(type="hidden" name="grpid" id="grpid")
+   table(align='center' border='1' width='90%' cellspacing='2' cellpadding='5')
+    th Sr.No.
+    th Group Id 
+    th Name 
+    th Capacity 
+    th Description 
+    th Action
+    tbody
+    each item, i in items
+     tr
+       td=i+1
+       td=item.id    
+       td=item.name    
+       td=item.capacity   
+       td=item.description  
+       td: button(style='width:120px;height:40px;margin-left:60px' onclick='check(#{item.id});' ) JOIN
+script(type='text/javascript')  var check =function(id) {document.getElementById("grpid").value= id;window.open('/joined_group?grpid='+id,'','height=650,width=750','_blank');}
+include group_list.html

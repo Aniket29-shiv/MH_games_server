@@ -1,0 +1,23 @@
+$(document).ready(function(){
+	$(".openInfo").click(function(){
+		$(".gameInfo").fadeToggle();
+	});
+	$(".fa-times").click(function(){
+		$(".gameInfo").hide();
+	});
+	$(".sit-popup").click(function(){
+		$(".table-popup").show(300);
+	});
+	$(".btn-cancel").click(function(){
+		$(".table-popup").hide();
+	});
+	$(".close-declpop").click(function(){
+		$(".declare-table").hide();
+	});
+	$(".declare-but").click(function(){
+		$(".declare-table").show();
+	});
+	$(".discard-arrow").click(function(){
+		$(".discard-cards").fadeToggle();
+	});
+});

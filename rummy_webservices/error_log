@@ -1,0 +1,31 @@
+[10-Jan-2018 11:16:29 UTC] PHP Warning:  mysqli::mysqli(): (HY000/1045): Access denied for user 'root'@'localhost' (using password: NO) in /home/rummystore/public_html/rummy_webservices/update_contact_details.php on line 8
+[30-Oct-2018 14:15:48 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/update_id_proof_image.php on line 25
+[30-Oct-2018 14:15:49 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/update_pan_card_image.php on line 25
+[30-Oct-2018 14:15:55 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[30-Oct-2018 14:15:55 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[30-Oct-2018 14:16:02 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[30-Oct-2018 14:16:02 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[30-Oct-2018 14:16:31 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[30-Oct-2018 14:16:31 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[30-Oct-2018 14:18:16 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[30-Oct-2018 14:18:16 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[30-Oct-2018 14:18:22 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[30-Oct-2018 14:18:22 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[31-Oct-2018 10:20:29 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[31-Oct-2018 10:20:29 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 10:43:21 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 10:43:21 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 11:04:38 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 11:04:38 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 11:04:46 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 11:04:46 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 11:05:02 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 11:05:02 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 11:05:04 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 11:05:04 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[03-Nov-2018 11:05:14 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[03-Nov-2018 11:05:14 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[25-Nov-2018 17:12:19 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[25-Nov-2018 17:12:19 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30
+[25-Nov-2018 17:12:31 UTC] PHP Warning:  Creating default object from empty value in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 17
+[25-Nov-2018 17:12:31 UTC] PHP Fatal error:  Call to a member function close() on null in /home/rummystore/public_html/rummy_webservices/get_user_real_chips.php on line 30

@@ -1,0 +1,927 @@
+body{
+	margin:0px;
+	padding:0px
+}
+*{
+	box-sizing:border-box
+}
+.dis-ib{
+	display:inline-block
+}
+html{
+	overflow:scroll;
+	height:auto
+}
+@media screen and (max-width: 360px) and (orientation: portrait) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+}
+::-webkit-scrollbar {
+	display: none;
+}
+.table-wrapper{
+	width:100%;
+	height:auto;
+	position:relative
+}
+/* common classes end */
+
+/* top links start */
+.top-left-menu,.top-right-menu{
+	background: linear-gradient(#0066ff , #80b3ff);
+	padding: 0px 15px;
+	display:inline-block;
+	position:absolute;
+	top:0.5%;
+	width:45%;
+	text-align:center;
+	border-radius:40%
+}
+.top-left-menu{
+	left:0%
+}
+.top-right-menu{
+	right:0%
+}
+.top-left-menu li a,.top-right-menu a{
+	text-decoration:none;
+	color: #fff;
+	display: inline-block;
+	font-weight: bold;
+	font-size: 16px;
+	padding: 2% 20px
+}
+.top-left-menu li a:hover,.top-right-menu a:hover{
+	background:#fff;
+	color:#0099ff
+}
+.top-left-menu ul,.top-right-menu ul{
+	padding:0px!important;
+	margin: 0px;
+	display:inline-block
+}
+.top-left-menu li,.top-right-menu li{
+	list-style:none;
+	display: inline-block;
+	text-align:center
+}
+@media (max-width:480px){
+	.top-left-menu,.top-right-menu{
+		padding:0px 10px
+	}
+	.top-left-menu li a,.top-right-menu li a{
+		font-size: 9px;
+		padding: 0%!important;
+		margin:0
+	}
+}
+@media (min-width:360px) and (max-width:767px){
+	.top-left-menu,.top-right-menu{
+		top:0%;
+		width:50%;
+		text-align:center;
+		border-radius:30%
+	}
+	.top-left-menu li a,.top-right-menu li a{
+		font-size: 11px;
+		padding:0 3px!important;
+	}
+}
+@media(min-width:768px) and (min-height:1024px){
+	.top-left-menu li a,.top-right-menu a{
+		padding: 2% 15px!important
+	}
+}
+@media(min-width:768px) and (max-width:1024px){
+	.top-left-menu li a,.top-right-menu a{
+		padding: 2% 15px
+	}
+}
+/* top links end */
+
+/* game info start */
+.gameInfo{
+	position:absolute;
+	width:25%;
+	height:25%;
+	background: linear-gradient( #ff4d4d , #ff704d);
+	top:4.3%;
+	left:1.8%;
+	border-radius:2%;
+	overflow:auto;
+	z-index:1000;
+	display:none
+}
+.gameInfo h4{
+	margin:0px;
+	display:inline-block
+}
+.gameInfo i{
+	float:right;
+	margin-top:1%;
+	cursor:pointer
+}
+.gameInfo table{
+	padding:0% 2%!important
+}
+.gameInfo td{
+	width:50%;
+	color:#fff
+}
+@media (max-width:767px) and (min-width:360px){
+	.gameInfo{
+		width:30%;
+		height:39%;
+		top:8%;
+		font-size:11px
+	}
+	.gameInfo td{
+		font-size:13px
+	}
+}
+@media (max-width:480px) and (min-width:320px){
+	.gameInfo{
+		width:40%;
+		height:39%;
+		top:8.5%
+	}
+}
+/* game info end */
+
+/* close window start */
+.overlay {
+	position: absolute;
+	top: 40%;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	visibility: hidden;
+	opacity: 0;
+	z-index:1500
+}
+.overlay:target {
+	visibility: visible;
+	opacity: 1
+}
+
+.popup {
+	width: 50%;
+	margin: 0px auto;
+	text-align:center
+}
+.content span{
+	padding:4%;
+	display:inline-block;
+	font-size: 16px !important;
+}
+.content h5{
+	color:#fff;
+	margin: 0px;
+	font-size:14px;
+	padding:8% 10% 0%;
+}
+.closepopup a{
+	background: #ccc;
+	border: 1px solid #000;
+	border-radius: 5px;
+	padding: 1% 4%;
+	font-size: 12px;
+	color: #000;
+	margin:5% 2% 8% 0%;
+	display: inline-block;
+}
+.popup .close{
+	position: absolute;
+	transition: all 200ms;
+	font-size: 20px;
+	font-weight: bold;
+	text-decoration: none;
+	color: #fff;
+	background:#ff3333;
+	left:68%;
+	padding: 0px 5px;
+	border: 1px solid #fff;
+	margin: 1.5% 0px;
+}
+@media (max-width:767px){
+	.popup {
+		width: 70%
+	}
+	.overlay{
+		top:25%
+	}
+	.content span,.content h5{
+		font-size:12px!important
+	}
+	.popup .close {
+	  font-size: 13px;
+	  left:77%;
+	  padding: 0px 3px;
+	}
+}
+/* close window end */
+
+/* top sit here start */
+.top-chair img{
+	position:absolute	
+}
+.front-chair img{
+	top:22.2%;
+	left: 46.5%;
+	height:10.9%;
+	width:7.5%
+}
+.male-user img{
+	top:18%;
+	left: 46%;
+	height:16%;
+	width:9%
+}
+.female-user img{
+	top:18.8%;
+	left: 45.9%;
+	height:16%;
+	width:9%
+}
+.sit img{
+	top:21.8%;
+	left: 47%;
+	height:4%;
+	width:6.5%;
+	cursor:pointer
+}
+.front-dealer img{
+	top:29.5%;
+	left: 43%;
+	height:3%;
+	width:2%
+}
+.ct-fif-sec{
+	top:27.5%;
+	right:42%
+}
+.ct-twe-sec{
+	top:23.5%;
+	right:41%
+}
+.ct-loader img{
+	top:23%;
+	left: 47.5%;
+	height:9%;
+	width:5.5%
+}
+
+
+/* top sit here end */
+
+/* table pop-up start */
+.table-popup td{
+	border:none
+}
+.table-popup{
+	top:30%;
+	color:#000!important;
+	z-index:10000;
+	position:absolute;
+	width:25%;
+	background:linear-gradient( #fff , #999999 );
+	left: 38%;
+	padding: 2% 1%;
+	display:none;
+	border:2px solid #000;
+	border-radius:1%
+}
+.btn-ok{
+	width:30%;
+	margin:6% 0% 0% 12%;
+	cursor:pointer
+}
+.btn-cancel{
+	width:37%;
+	margin:0% 12% 0% 6%;
+	cursor:pointer
+}
+@media (max-width:480px) and (min-width:320px){
+	.table-popup{
+		top:36.5%!important;
+		width:39%;
+		left: 31%;
+		font-size: 11px!important;
+		height: 45%;
+		overflow: auto;
+	}
+}
+@media (max-width:767px) and (min-width:340px){
+	.table-popup{
+		top:34%;
+		width:38%;
+		left: 32%;
+		font-size: 13px;
+		height: 45%;
+		overflow: auto;
+		padding:0 1%
+	}
+}
+@media (min-width:768px) and (min-height:1024px){
+	.table-popup{
+		width:28%;
+		left: 37%;
+		top:20%
+	}
+}
+@media (min-width:1365px){
+	.table-popup{
+		top:41.5%;
+		width:20%;
+		left: 41%;
+		font-size: 15px
+	}
+}
+/* table pop-up end */
+
+/* table buttons */
+.declare-but img,.discard-but img,.finish-but img{
+	cursor:pointer;
+	position:absolute;
+	top:49%;
+	height:4%
+}
+.declare-but img{
+	left:38%;
+}
+.discard-but img{
+	left:47%;
+}
+.finish-but img{
+	right:37%;
+}
+@media (max-width:1024px) and (min-width:768px){
+	.declare-but img,.discard-but img,.finish-but img{
+		height:3.5%
+	}
+}
+
+#msg{
+	position: absolute;
+    color: white!important;
+    left: 50%;
+	transform:translate(-50%,0%);
+    top: 53%;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+	font-weight:bold
+}
+/* table buttons */
+
+/* declare popup */
+.declare-table{
+	color:#fff!important;
+	width:80%;
+	position:absolute;
+	background:linear-gradient(#808080 , #1a1a1a);
+	top: 34%;
+	left: 10%;
+	z-index:1000;
+	display:none;
+	box-shadow:5px 10px 18px #d9d9d9
+}
+.declare-table table{
+	width:100%
+}
+.table-bordered{
+	border:1px solid #fff!important
+}
+.declare-table table,th,td {
+    border-right:1px solid #fff;
+    border-left:1px solid #fff;
+    border-collapse: collapse
+}
+.declare-cards{
+	text-align:center
+}
+.declare-cards img{
+	width:9.7%;
+	padding: 3% 0%;
+	margin-left: -5.6%;
+	height:auto!important
+}
+.declare-cards img:first-child{
+	margin-left: 0%!important;
+}
+.declare-cards .decl-group1,.decl-group2,.decl-group3,.decl-group4,.decl-group5,.decl-group6,.decl-group7{
+	display:inline;
+	margin-left:1%
+}
+.decl-group1{
+	margin-left:0%!important
+}
+
+
+.joker img{
+	width:57%;
+	padding: 0% 0%;
+}
+.close-declpop{
+	text-align:center;
+	cursor:pointer
+}
+@media (max-width:480px) and (min-width:320px){
+	.declare-table{
+		top: 36%!important;
+		font-size: 10px!important;
+	}
+}
+@media (max-width:767px) and (min-width:360px){
+	.declare-table{
+		top:18%!important;
+		font-size: 11px;
+	}
+}
+@media (max-width:1024px) and (min-width:768px){
+	.declare-table{
+		top:17%;
+	}
+}
+/* declare popup */
+
+/* bottom chair start */
+.bottom-chair img{
+	position:absolute
+}
+.bott-chair img{
+	bottom:8.2%;
+	left:46.3%;
+	height:15%;
+	width:10%
+}
+.bott-female img{
+	bottom:16%;
+	left:46.7%;
+	height:15%;
+	width:9%
+}
+.bott-male img{
+	bottom:15%;
+	left:46.8%;
+	height:15%;
+	width:9%
+}
+.bott-sit img{
+	bottom:19%;
+	left: 47.8%;
+	height:4%;
+	width:6.5%;
+	cursor:pointer
+}
+.bot-dealer img{
+	bottom:21%;
+	left: 56%;
+	height:3%;
+	width:2%
+}
+.bot-loader img{
+	bottom:14%;
+	left: 48.2%;
+	height:9%;
+	width:5.5%
+}
+/* bottom chair start */
+
+/* sort-drop-but start */
+.sort-but img,.drop-but img{
+	position:absolute;
+	bottom:18%;
+	cursor:pointer;
+	height:5%;
+	width:7%
+}
+.sort-but img{
+	right:35%
+}
+.drop-but img{
+	right:27%
+}
+.sort-drop-but #bottom_player_name{
+	right:34%;
+	font-size:16px;
+	bottom:4%!important
+}
+.sort-drop-but #bottom_player_amount{
+	left:65%;
+	font-size:16px;
+	bottom:4%!important
+}
+@media (max-width:767px){
+	.sort-drop-but #bottom_player_amount{
+		left:69%
+	}
+}
+/* sort-drop-but end */
+
+/* bottom link start */
+.bottom-menu{
+	position:absolute;
+	background: linear-gradient(#0066ff , #3385ff);
+	padding: 0px 15px;
+	width:100%;
+	display:inline-block;
+	bottom:0;
+	color:#fff;
+	-webkit-top:-10px
+}
+.bottom-menu a{
+	text-decoration:none
+}
+.bottom-menu i{
+	font-size:18px;
+	padding:0% 2% 0% 0%;
+}
+.bottom-menu span{
+	margin-right:5px
+}
+@media (max-width:767px){
+	.bottom-menu i{
+		font-size:12px
+	}
+	.bottom-menu label{
+		font-size:11px
+	}
+}
+/* bottom link end */
+
+/* count down start */
+.fif-sec,.twe-sec,.ct-fif-sec,.ct-twe-sec{
+	position:absolute;
+	background:#262626;
+	padding:0.8%;
+	border-radius:50%;
+	font-size:12px
+}
+.fif-sec{
+	bottom:20.8%;
+	left:43%
+}
+.twe-sec{
+	bottom:13.7%;
+	left:42%
+}
+@media (max-width:480px){
+	.fif-sec,.twe-sec{
+		font-size:10px!important
+	}
+}
+@media (max-width:767px) and (min-width:320px){
+	.fif-sec,.twe-sec{
+		font-size:10px!important;
+		left:42.8%;
+	}
+	.fif-sec{
+		bottom:21.5%;
+	}
+	.twe-sec{
+		bottom:12%;
+	}
+	.ct-fif-sec,.ct-twe-sec{
+		font-size:10px!important;
+		right:41%
+	}
+	.ct-fif-sec{
+		top:27.5%;
+	}
+	.ct-twe-sec{
+		top:21.5%;
+	}
+}
+/* count down end */
+
+
+
+
+
+.group_images{
+	position:absolute;
+	top:55%;
+	text-align:center
+}
+.group_images img{
+	width:7.5%;
+	height:auto;
+	margin-left:-3%
+}
+
+.group1,.group2,.group3,.group4,.group5,.group6,.group7{
+	position:relative;
+	display:inline;
+	margin-left:0%!important
+}
+.group1{
+	margin-left:0%!important
+}
+.group1 img,.group2 img,.group3 img,.group4 img,.group5 img,.group6 img,.group7 img{
+	margin-left:-5%;
+	width:7.5%;
+	height:auto!important
+}
+.group1 img:first-child,.group2 img:first-child,.group3 img:first-child,.group4 img:first-child,
+.group5 img:first-child,.group6 img:first-child,.group7 img:first-child{
+	margin-left:0%!important
+}
+.rummy-cards{
+	text-align:center;
+	position:absolute;
+	top:56%;
+	left:15%
+}
+
+.bottom-player-name,.top-player{
+	position: absolute;
+    text-align: center;
+    background: linear-gradient(#3cca3c, black);
+    padding: 1% 1%;
+    text-transform: uppercase;
+    font-size: 12px;
+    line-height: 18px;
+    color: #fff;
+	border-radius: 50% 50% 0% 0%
+}
+.top-player{
+	top: 18%;
+    right: 38%
+}
+.bottom-player-name{
+	top: 80%;
+    left: 39%
+}
+@media(max-width:1024px) and (min-width:768px){
+	.bottom-player-name,.top-player{
+		font-size: 11px;
+		line-height: 16px
+	}
+}
+@media(max-width:767px) and (min-width:320px){
+	.bottom-player-name,.top-player{
+		font-size: 9px;
+		line-height: 13px
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* table cards start */
+.table-content-wrapper,.content-buttons,.bottom-chair,.count-down,.sort-drop-but,.rummy-cards,.overlay{
+	width:70%;
+	margin:0px auto
+}
+.waiting-msg{
+	top: 47.5%;
+	left: 50%;
+	transform:translate(-50%,0%);
+	position: absolute;
+	z-index: 1000;
+	background: linear-gradient(#262626 , #737373);
+	padding: 3% 2%;
+	opacity: 0.9;
+	border-radius: 40% 40% 0% 0%;
+	color: #fff !important;
+	font-weight: bold;
+	box-shadow: 0 12px 6px -6px #000;
+}
+@media (max-width:767px){
+	.waiting-msg{
+		top: 47.5%;
+		font-size: 10px;
+		padding: 1.5% 6%
+	}
+}
+@media (max-width:1024px) and (min-width:768px){
+	.waiting-msg{
+		top: 49.5%;
+		font-size: 12px;
+		padding: 1% 7%
+	}
+}
+.joker-card img,.close-card img,.open-card img,.discard-arrow img,.finish-card img,
+.your-first-card img,.opponent-first-card img{
+	height:auto;
+	width:5%;
+	top: 37.5%;
+	position:absolute
+}
+.joker-card img{
+	transform:rotate(-90deg);
+	left: 35.5%;
+}
+.close-card img{
+	left: 38%;
+}
+.open-card img{
+	left: 48.2%;
+}
+.finish-card img{
+	right: 37%;
+}
+.discard-arrow img{
+	right: 45%;
+	height:2.5%;
+	width: 1.5%;
+	top:45%;
+	cursor:pointer
+}
+.discard-cards{
+	height:20%;
+	width:20%;
+	position:absolute;
+	top:35%;
+	right: 23.5%;
+	background:-webkit-linear-gradient(#333333, #8c8c8c);
+	z-index:1000;
+	overflow:auto;
+	display:none
+}
+.discard-cards img{
+	height:50%;
+	width:20%;
+	margin:2% 0 0 0.5%
+}
+
+
+
+.your-first-card label,.opponent-first-card label{
+	position:absolute;
+	color:#fff
+}
+.your-first-card label{
+	bottom:32%;
+	left:47%;
+}
+.opponent-first-card label{
+	top:37%;
+	left:42.5%
+}
+.your-first-card img,.opponent-first-card img{
+	left:48%;
+	width:4.5%
+}
+.your-first-card img{
+	top:54.7%
+}
+.opponent-first-card img{
+	top:40.3%
+}
+@media(max-width:767px){
+	.your-first-card label,.opponent-first-card label{
+		font-size:13px
+	}
+}
+/* table cards end */
+
+/* rummy cards */
+
+
+/* .rummy-cards .group1 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group2 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group3 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group4 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group5 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group6 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+}
+.rummy-cards .group7 img{
+	margin-top: 55%;
+	margin-left: -6.3%;
+} */
+/* .card1 img{
+	left:22.9%
+}
+.card2 img{
+	left:25%
+}
+.card3 img{
+	left:30.7%;
+}
+.card4 img{
+	left:32.7%;
+}
+.card5 img{
+	left:38.4%;
+}
+.card6 img{
+	left:40.6%;
+}
+.card7 img{
+	left:46.2%;
+}
+.card8 img{
+	left:48.2%;
+}
+.card9 img{
+	left:53.9%;
+}
+.card10 img{
+	left:56%;
+}
+.card11 img{
+	left:61.6%;
+}
+.card12 img{
+	left:63.7%;
+}
+.card13 img{
+	left:69.3%;
+}
+.card14 img{
+	left:71.5%;
+} */
+.rummy-cards button{
+	background:-webkit-linear-gradient(#0033cc, #668cff);
+	color:#fff;
+	border:none;
+	padding:0.2%;
+	position:absolute;
+	border-radius:10%;
+	bottom:109.5%;
+	cursor:pointer;
+	font-size:10px
+}
+.add-here-1 button{
+	left:24%;
+}
+.add-here-2 button{
+	left:32.2%;
+}
+.add-here-3 button{
+	left:39.5%;
+}
+.add-here-4 button{
+	left:46%;
+}
+.add-here-5 button{
+	left:55%;
+}
+.add-here-6 button{
+	left:65%;
+}
+.add-here-7 button{
+	left:75%;
+}
+.btn-group button{
+	right:37%
+}
+@media (max-width:767px) and (min-width:320px){
+	.rummy-cards button{
+		font-size:9px
+	}
+}
+@media (max-width:480px){
+	.rummy-cards button{
+		font-size:7px
+	}
+}
+/* rummy cards */
+
+
+
+
+
+
+

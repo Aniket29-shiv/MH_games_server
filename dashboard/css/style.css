@@ -1,0 +1,191 @@
+.content-wrapper{
+	min-height:1120px!important
+}
+
+/* dash poinr lobby rummy start */
+
+.point-lobby-wrapper .dropdown{
+	display:inline-block; 
+	width: 16%;
+}
+.point-lobby-wrapper .dropdown button{
+	margin:3% 28% 0%
+}
+.point-lobby-wrapper .dropdown-menu{
+	margin:3% 15% 0%
+}
+@media (max-width:480px) and (min-width:320px){
+	.point-lobby-wrapper .dropdown{
+		width:50%%;
+		margin-left: 4%;
+	}
+}
+@media (max-width:767px){
+	.point-lobby-wrapper .dropdown-menu{
+		margin:3% 0% 0%;
+		min-width:50px
+	}
+	.point-lobby-wrapper .dropdown button{
+		margin:3% 0% 0%;
+		padding:2% 5%
+	}
+	.point-lobby-wrapper .dropdown:first-child{
+		width:28%;
+		margin-left: 4%;
+	}
+	.point-lobby-wrapper .dropdown:nth-child(3){
+		width:25%;
+	}
+	.point-lobby-wrapper .dropdown{
+		width:20%;
+		margin-left: 0%;
+	}
+}
+/* dash poinr lobby rummy end */
+
+/* loyalty point page start */
+.loyalty-points label{
+	width:60%;
+	margin-top:15px;
+	padding:3px 0px
+}
+.loyalty-points input{
+	width:20%
+}
+@media (max-width:767px){
+	.loyalty-points label{
+		width:65%;
+		margin-top:5px
+	}
+	.loyalty-points input{
+		width:30%
+	}
+}
+/* loyalty point page end */
+
+/* promotions page start */
+.promoImg{
+	width:20%
+}
+.promoImg img{
+	width:30%
+}
+.promo-temp{
+	display:none
+}
+.promo-temp label{
+	width:12%;
+	margin-top:3%
+}
+@media(max-width:767px){
+	.promo-temp label{
+		width:32%
+	}
+	.promo-temp label{
+		margin-top:5%
+	}
+}
+/* promotions page end */
+
+/* bonus entry page start */
+.bonus-wrapper label{
+	margin-top:20px;
+	width:55%
+}
+.bonus-wrapper input{
+	width:30%
+}
+.bonus-wrapper h5{
+	font-size:16px;
+	display:inline-block
+}
+.bonus-wrapper h6{
+	display:inline-block;
+	font-size:11px
+}
+/* bonus entry page end */
+
+/* commission page start */
+.commission-wrapper label{
+	 margin-top:20px;
+	 width:60%
+}
+.commission-wrapper input{
+	width:20%
+}
+/* commission page end */
+
+/* email setting page start */
+.email-config{
+	padding:5% 10%
+}
+.email-config label{
+	width:40%;
+	margin-top:15px
+}
+.email-config select{
+	width:58%;
+	padding:0px 5px
+}
+.email-config input{
+	padding:0px 5px
+}
+@media (max-width:767px){
+	.email-config label{
+		width:96%;
+		margin-top:15px
+	}.email-config{
+		padding:5% 0%
+	}
+}
+/* email setting page end */
+
+/* email template page start */
+.email-temp{
+	display:none
+}
+.email-temp label{
+	width:20%;
+	margin-top:3%
+}
+@media(max-width:767px){
+	.email-temp label{
+		width:43%
+	}
+}
+/* email template page end */
+
+/* help and support page start */
+.help-support label{
+	width:10%
+}
+.ml15{
+	margin-left:15%
+}
+.help-support select{
+	width:22%
+}
+@media (max-width:767px){
+	.help-support label{
+		width:20%
+	}
+	.ml15{
+		margin-left:0%
+	}
+	.help-support select{
+		width:40%
+	}
+}
+
+.error{
+	color: red;
+}
+
+.excelbtn {
+    background-image: url(https://rummysahara.com/excelbutton.jpg);
+    font-size: 0;
+    width: 50px;
+    height: 50px;
+    background-size: 47px;
+}
+/* help and support page end */
